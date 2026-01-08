@@ -4,7 +4,7 @@
 <style>
 .calendar {
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     flex-wrap: wrap;
 }
 .calendarEntry {
@@ -23,7 +23,7 @@
     background-color: var(--highlight);
     color: var(--highlight-contrast);
     min-width: 80px;
-    max-width: 100px;
+    max-width: 80px;
     height: 100px;
     flex-grow: 100;
     text-align: center;
@@ -153,6 +153,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function filterAndSortEvents(events) {
         const now = new Date();
+        console.log(events);
         return events
             .filter(e => {
                 const name = e.title.toLowerCase();
@@ -170,6 +171,7 @@ document.addEventListener("DOMContentLoaded", () => {
             renderFallback();
             return;
         }
+        console.log(events.map(e => formatEventHTML(e)));
 
         calendarDiv.innerHTML = events.map(event => formatEventHTML(event)).join("");
     }
@@ -193,7 +195,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const cleanTitle = event.title.replace(/\[.*?\]/g, "").trim(); // Remove text in [brackets]
 
         let loc = "";
-        if (location) {
+        if (event.location) {
             // Cut at first "\," or plain comma
             loc = event.location.split("\\,")[0].split(",")[0].trim();
         }
