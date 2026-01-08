@@ -1,0 +1,219 @@
+
+
+<link rel="stylesheet" href="custom.css" type="text/css" />
+<style>
+.calendar {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+.calendarEntry {
+    padding: 10px;
+    white-space: nowrap;
+}
+.calendarEntry>div {
+    display: inline-block;
+    vertical-align: middle;
+}
+.calendarDate {
+    background-color: var(--highlight);
+    color: var(--highlight-contrast);
+    width: 90px;
+    height: 90px;
+    text-align: center;
+    border-radius: 10px;
+    font-family: oswald, sans-serif;
+}
+.calendarDate div {
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: lighter;
+}
+.calendarWeekday {
+    font-size: 12px;
+    line-height: 25px;
+}
+.calendarDay{
+    font-size: 40px;
+    line-height: 40px;
+}
+.calendarMonth {
+    font-size: 12px;
+    line-height: 25px;
+}
+.calendarDetails {
+    height: 90px;
+    margin-left: 10px;
+}
+.calendarTitle {
+    font-weight: bold
+}
+.calendarTime, .calendarLocation {
+    font-size: 80%
+}
+</style>
+
+<div class='calendar'>
+    Carregant el calendari...
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+
+    // Proxy per executar en local
+    //const ICAL_URL = "https://corsproxy.io/?https://calendar.google.com/calendar/ical/muixerangabarcelona%40gmail.com/public/basic.ics";
+    const ICAL_URL = "?https://calendar.google.com/calendar/ical/muixerangabarcelona%40gmail.com/public/basic.ics";
+
+    const MESOS = ["Gener", "Febrer", "Març", "Abril", "Maig", "Juny", "Juliol", "Agost", "Setembre", "Octubre", "Novembre", "Desembre"];
+    const DIES_SETMANA = ["Diumenge", "Dilluns", "Dimarts", "Dimecres", "Dijous", "Divendres", "Dissabte"];
+
+    initCalendar();
+
+    async function initCalendar() {
+        try {
+            const icalText = await fetchICal(ICAL_URL);
+            const events = parseICal(icalText);
+            const filtered = filterAndSortEvents(events);
+            renderCalendar(filtered);
+        } catch (err) {
+            console.error("Error carregant el calendari:", err);
+            renderFallback();
+        }
+    }
+
+    async function fetchICal(url) {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error("No s'ha pogut descarregar l'arxiu iCal");
+        return await response.text();
+    }
+
+    function parseICal(text) {
+        const events = [];
+        const blocks = text.split("BEGIN:VEVENT").slice(1);
+
+        for (const block of blocks) {
+            const summary = matchField(block, "SUMMARY");
+            const location = matchField(block, "LOCATION");
+            const startStr = matchField(block, "DTSTART");
+            const endStr = matchField(block, "DTEND");
+
+            if (!summary || !startStr) continue;
+
+            const start = parseICalDate(startStr);
+            const end = endStr ? parseICalDate(endStr) : null;
+            const isAllDay = startStr.includes("VALUE=DATE");
+
+            events.push({
+                title: summary,
+                location: location,
+                start,
+                end,
+                isAllDay
+            });
+        }
+        return events;
+    }
+
+    function matchField(block, key) {
+        // Handles possible folded lines and parameters like DTSTART;VALUE=DATE:
+        const regex = new RegExp(key + "(?:;[^:]+)?:([^\n\r]+)");
+        const match = block.match(regex);
+        return match ? match[1] : null;
+    }
+
+    function parseICalDate(str) {
+        // Handle VALUE=DATE (no time)
+        if (/^\d{8}$/.test(str)) {
+            const year = parseInt(str.slice(0, 4), 10);
+            const month = parseInt(str.slice(4, 6), 10) - 1;
+            const day = parseInt(str.slice(6, 8), 10);
+            return new Date(year, month, day);
+        }
+
+        // Handle full datetime like 20251008T184500Z
+        const year = parseInt(str.slice(0, 4), 10);
+        const month = parseInt(str.slice(4, 6), 10) - 1;
+        const day = parseInt(str.slice(6, 8), 10);
+        const hour = parseInt(str.slice(9, 11) || "0", 10);
+        const min = parseInt(str.slice(11, 13) || "0", 10);
+        const sec = parseInt(str.slice(13, 15) || "0", 10);
+        return str.endsWith("Z")
+            ? new Date(Date.UTC(year, month, day, hour, min, sec))
+            : new Date(year, month, day, hour, min, sec);
+    }
+
+    function filterAndSortEvents(events) {
+        const now = new Date();
+        return events
+            .filter(e => {
+                const name = e.title.toLowerCase();
+                return (name.includes("actuació") || name.includes("mostra")) && e.start >= now;
+            })
+            .sort((a, b) => a.start - b.start)
+            .slice(0, 3);
+    }
+
+    function renderCalendar(events) {
+        const calendarDiv = document.querySelector(".calendar");
+        if (!calendarDiv) return;
+
+        if (events.length === 0) {
+            renderFallback();
+            return;
+        }
+
+        calendarDiv.innerHTML = events.map(event => formatEventHTML(event)).join("");
+    }
+
+    function renderFallback() {
+        const calendarDiv = document.querySelector(".calendar");
+        if (calendarDiv) {
+            calendarDiv.innerHTML = "<div class='calendarEmpty'>No hi ha actuacions properes</div>";
+        }
+    }
+
+    function formatEventHTML(event) {
+        const d = event.start;
+        const weekday = DIES_SETMANA[d.getDay()];
+        const day = d.getDate();
+        const month = MESOS[d.getMonth()];
+        const hours = d.getHours().toString().padStart(2, "0");
+        const minutes = d.getMinutes().toString().padStart(2, "0");
+        const time = `${hours}:${minutes}`;
+
+        const cleanTitle = event.title.replace(/\[.*?\]/g, "").trim(); // Remove text in [brackets]
+
+        let loc = "";
+        if (location) {
+            // Cut at first "\," or plain comma
+            loc = event.location.split("\\,")[0].split(",")[0].trim();
+        }
+
+
+        const timeDiv = (event.isAllDay || time == '00:00') ? "" : `
+            <div class="calendarTime"><span class="fa-solid fa-clock"></span> ${time}</div>`;
+        const locationDiv = event.location ? `
+            <div class="calendarLocation">
+                <span class="fa-solid fa-location-dot"></span>
+                <a href="https://www.google.com/maps/search/?q=${encodeURIComponent(event.location)}" target="_blank" rel="noopener noreferrer">
+                    ${loc}
+                </a>
+            </div>` : "";
+
+        return `
+        <div class='calendarEntry'>
+            <div class="calendarDate">
+                <div class="calendarWeekday"><span>${weekday}</span></div>
+                <div class="calendarDay"><span>${day}</span></div>
+                <div class="calendarMonth"><span>${month}</span></div>
+            </div>
+            <div class="calendarDetails">
+                <div class="calendarTitle">${cleanTitle}</div>
+                ${locationDiv}
+                ${timeDiv}
+            </div>
+        </div>`;
+    }
+});
+</script>
+
