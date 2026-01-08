@@ -204,7 +204,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const locationDiv = event.location ? `
             <div class="calendarLocation">
                 <span class="fa-solid fa-location-dot"></span>
-                <a href="https://www.google.com/maps/search/?q=${encodeURIComponent(event.location)}" target="_blank" rel="noopener noreferrer">
+                <a href="https://maps.google.com/?q=${encodeURIComponent(event.location)}" target="_blank" rel="noopener noreferrer">
                     ${loc}
                 </a>
             </div>` : "";
