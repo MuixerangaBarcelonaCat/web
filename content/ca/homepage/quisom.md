@@ -4,4 +4,6 @@ weight: 10
 header_menu: true
 ---
 
-Lorem ipsum dolor sit amet consectetur adipiscing elit. Quisque faucibus ex sapien vitae pellentesque sem placerat. In id cursus mi pretium tellus duis convallis. Tempus leo eu aenean sed diam urna tempor. Pulvinar vivamus fringilla lacus nec metus bibendum egestas. Iaculis massa nisl malesuada lacinia integer nunc posuere. Ut hendrerit semper vel class aptent taciti sociosqu. Ad litora torquent per conubia nostra inceptos himenaeos.
+La [muixeranga](https://fcmuixerangues.org/la-muixeranga/) és un element festiu tradicional valencià que consisteix en la realització de figures plàstiques i torres humanes.
+
+La Muixeranga de Barcelona va nàixer a la tardor de 2017 amb l'objectiu de difondre la cultura valenciana a la ciutat de Barcelona i crear vincles amb la societat catalana. Som la primera muixeranga activa fora del País Valencià.
