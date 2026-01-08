@@ -1,4 +1,4 @@
-baseURL = "muixeranga-de-barcelona.github.io"
+baseURL = "https://muixeranga-de-barcelona.github.io/web/"
 
 # This is a "one page"-website, so we do not need these kinds of pages...
 disableKinds = ["section", "taxonomy", "term", "RSS", "robotsTXT"]
