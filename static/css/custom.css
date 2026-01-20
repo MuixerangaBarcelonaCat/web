@@ -3,7 +3,7 @@
     /* === Cover / Landing area === */
     --cover-text-color: #0A4853;
     /* Used for Landing screen menu buttons, but potentially usable for highlighting other things */
-    --highlight: #18C7E6;
+    --highlight: #6CE9FF;
     --highlight-contrast: var(--cover-text-color);
     /*inverse colors used for :hover */
     --highlight-inverse: var(--cover-text-color);
