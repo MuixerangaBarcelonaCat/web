@@ -153,7 +153,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function filterAndSortEvents(events) {
         const now = new Date();
-        console.log(events);
         return events
             .filter(e => {
                 const name = e.title.toLowerCase();
@@ -171,7 +170,6 @@ document.addEventListener("DOMContentLoaded", () => {
             renderFallback();
             return;
         }
-        console.log(events.map(e => formatEventHTML(e)));
 
         calendarDiv.innerHTML = events.map(event => formatEventHTML(event)).join("");
     }
