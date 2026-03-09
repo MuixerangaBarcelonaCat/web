@@ -4,6 +4,8 @@ on:
     branches:
       - main
   workflow_dispatch:
+  schedule:
+      - cron: "0 */3 * * *"
 permissions:
   contents: read
   pages: write
@@ -77,6 +79,9 @@ jobs:
           key: hugo-${{ github.run_id }}
           restore-keys:
             hugo-
+      - name: Download calendar
+        run: |
+          curl -L "https://calendar.google.com/calendar/ical/muixerangabarcelona%40gmail.com/public/basic.ics" -o static/calendar.ics
       - name: Build the site
         run: |
           hugo \
